@@ -137,8 +137,8 @@
       <p style="font-weight: bold; color: #555; margin-bottom: 40px;">〜 九九をマスターして モンスターをそだてよう 〜</p>
       
       <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 50px;">
-        <img src="img/egg.png" style="width: 70px; height: 70px; object-fit: contain; animation: float 2s infinite ease-in-out;">
-        <img src="img/water_1.png" style="width: 70px; height: 70px; object-fit: contain; animation: float 2.5s infinite ease-in-out;">
+        <img src="img/water_1.png" style="width: 70px; height: 70px; object-fit: contain; animation: float 2s infinite ease-in-out;">
+        <img src="img/grass_1.png" style="width: 70px; height: 70px; object-fit: contain; animation: float 2.5s infinite ease-in-out;">
         <img src="img/fire_1.png" style="width: 70px; height: 70px; object-fit: contain; animation: float 2.2s infinite ease-in-out;">
       </div>
 
@@ -365,79 +365,29 @@
 
     // === データ定義 ===
     const monsterLines = [
-      [
-        { name: "あおタマゴ", image: "img/water_1.png" },
-        { name: "プルル", image: "img/water_2.png" },
-        { name: "シャワル", image: "img/water_3.png" },
-        { name: "アクアリア", image: "img/water_4.png" }
-      ],
-      [
-        { name: "あかタマゴ", image: "img/fire_1.png" },
-        { name: "ヒノッコ", image: "img/fire_2.png" },
-        { name: "フレオン", image: "img/fire_3.png" },
-        { name: "ヴォルカ", image: "img/fire_4.png" }
-      ],
-      [
-        { name: "みどりタマゴ", image: "img/grass_1.png" },
-        { name: "リーフン", image: "img/grass_2.png" },
-        { name: "プラント", image: "img/grass_3.png" },
-        { name: "フォレスト", image: "img/grass_4.png" }
-      ],
-      [
-        { name: "きいろタマゴ", image: "img/stone_1.png" },
-        { name: "イシツブ", image: "img/stone_2.png" },
-        { name: "ガンセキ", image: "img/stone_3.png" },
-        { name: "ゴーレム", image: "img/stone_4.png" }
-      ],
-      [
-        { name: "むらさきタマゴ", image: "img/ghost_1.png" },
-        { name: "ゴス", image: "img/ghost_2.png" },
-        { name: "ファントム", image: "img/ghost_3.png" },
-        { name: "レイス", image: "img/ghost_4.png" }
-      ],
-      [
-        { name: "ピンクタマゴ", image: "img/fairy_1.png" },
-        { name: "ピクシー", image: "img/fairy_2.png" },
-        { name: "フェアリー", image: "img/fairy_3.png" },
-        { name: "ティターニア", image: "img/fairy_4.png" }
-      ],
-      [
-        { name: "ドラゴタマゴ", image: "img/dragon_1.png" },
-        { name: "ドラ", image: "img/dragon_2.png" },
-        { name: "ドレイコ", image: "img/dragon_3.png" },
-        { name: "バハムート", image: "img/dragon_4.png" }
-      ],
-      [
-        { name: "あくまタマゴ", image: "img/devil_1.png" },
-        { name: "デビ", image: "img/devil_2.png" },
-        { name: "デーモン", image: "img/devil_3.png" },
-        { name: "ルシファー", image: "img/devil_4.png" }
-      ],
-      [
-        { name: "むしタマゴ", image: "img/bug_1.png" },
-        { name: "キャタピ", image: "img/bug_2.png" },
-        { name: "コクーン", image: "img/bug_3.png" },
-        { name: "ビートル", image: "img/bug_4.png" }
-      ],
-      [
-        { name: "メカタマゴ", image: "img/robo_1.png" },
-        { name: "ロボ", image: "img/robo_2.png" },
-        { name: "サイボーグ", image: "img/robo_3.png" },
-        { name: "メガロボ", image: "img/robo_4.png" }
-      ]
+      [{ image: "img/fire_1.png", name: "ヒノッコ" }, { image: "img/fire_2.png", name: "フレオン" }, { image: "img/fire_3.png", name: "レオバーン" }, { image: "img/fire_4.png", name: "バクレオン" }],
+      [{ image: "img/grass_1.png", name: "コノシカ" }, { image: "img/grass_2.png", name: "ツノリーフ" }, { image: "img/grass_3.png", name: "ウッドジカ" }, { image: "img/grass_4.png", name: "グランジカ" }],
+      [{ image: "img/water_1.png", name: "アワポン" }, { image: "img/water_2.png", name: "スイスイ" }, { image: "img/water_3.png", name: "ウォルカ" }, { image: "img/water_4.png", name: "カイオルカ" }],
+      [{ image: "img/dragon_1.png", name: "カラドラ" }, { image: "img/dragon_2.png", name: "プチドラ" }, { image: "img/dragon_3.png", name: "ウロドラ" }, { image: "img/dragon_4.png", name: "ギガドラ" }],
+      [{ image: "img/devil_1.png", name: "プチデビ" }, { image: "img/devil_2.png", name: "ヤンデビ" }, { image: "img/devil_3.png", name: "ダーナイト" }, { image: "img/devil_4.png", name: "ダーキング" }],
+      [{ image: "img/stone_1.png", name: "コゴリ" }, { image: "img/stone_2.png", name: "クリゴリ" }, { image: "img/stone_3.png", name: "ガンゴリ" }, { image: "img/stone_4.png", name: "ギラゴリラ" }],
+      [{ image: "img/bug_1.png", name: "ニョロリン" }, { image: "img/bug_2.png", name: "マユッコ" }, { image: "img/bug_3.png", name: "カブホーン" }, { image: "img/bug_4.png", name: "ギガカブト" }],
+      [{ image: "img/fairy_1.png", name: "ピクリン" }, { image: "img/fairy_2.png", name: "ハナリン" }, { image: "img/fairy_3.png", name: "フェアナイト" }, { image: "img/fairy_4.png", name: "キラフェア" }],
+      [{ image: "img/ghost_1.png", name: "ユラリン" }, { image: "img/ghost_2.png", name: "フワハット" }, { image: "img/ghost_3.png", name: "ランタンゴ" }, { image: "img/ghost_4.png", name: "ギャラゴス" }],
+      [{ image: "img/robo_1.png", name: "ネジポン" }, { image: "img/robo_2.png", name: "デンチー" }, { image: "img/robo_3.png", name: "ジェトロボ" }, { image: "img/robo_4.png", name: "メガロボZ" }]
     ];
 
     const monsterDescriptions = [
-      ["いつも あたたかい。さむいひは みんなの ストーブがわりになる よ。", "しっぽの ほのおが おおきくなった。げんきいっぱいに はしりまわる。", "ほのおの よろいを まとった ライオン。とても たのもしい。", "ほえるだけで じしんが おこる でんせつのライオン。ぜったいに おこらせてはいけない。"],
-      ["あたまの はっぱが トレードマーク。ひなたぼっこが だいすき。", "つのが きのえだのようになった。もりの なかを かけぬける。", "からだから きのつるが はえている。もりの どうぶつたちの リーダー。", "もり そのもののような でんせつの シカ。あしあとに おはなが さく よ。"],
-      ["あわを ふいて あそぶのが だいすきな あかちゃん。", "みずの なかを ロケットのように はやく およげるようになったよ。", "うみを まもる かしこい シャチ。なみを あやつる ちからを もつ。", "うみの おうさま。しっぽを ふるだけで おおきな うずしおが できる よ。"],
-      ["まだ タマゴの からを かぶっている。ちょっと おくびょう。", "はねが はえて、すこしだけ そらを とべるようになった よ。", "かたい ウロコに おおわれて、どんな こうげきも へっちゃら。", "そらを おおいつくす ほどの おおきな はねをもつ でんせつの ドラゴン。"],
-      ["いたずらが だいすきな こあくま。あまい おかしに めがない。", "よるに なると げんきに とびまわる。ちょっと きざな やつ。", "やみの けんを もつ きし。クールで とても かっこいい。", "やみの せかいを すべる まおう。こわそうだけど じつは やさしい？！"],
-      ["いしころのように かたい からだ。よく じかんに おくれる。", "からだから キラキラの クリスタルが はえてきて じまんげ。", "どんな ぶきも はねかえす、てっぺきの からだを もつ。", "ぜんしんが ほうせきで できた でんせつの ゴリラ。まぶしすぎる！"],
-      ["はっぱを たくさん たべて、おおきくなる じゅんびを しているよ。", "かたい まゆの なかで、つぎの しんかの ために じっと している。", "りっぱな つのが はえた！もりの きの みつが だいすき。", "はがねのような からだを もつ、こんちゅうたちの おうさま。"],
-      ["おはなの においが する、ちいさな ちいさな ようせい。", "おはなばたけを とびまわり、みんなに えがおを とどけるよ。", "まほうの けんを あやつる、うつくしくて つよい きし。", "にじいろに ひかる でんせつの ようせい。せかいに へいわを もたらす。"],
-      ["ふわふわ している おばけ。ひとを おどろかせるのが すき。", "おとなの ぼうしを かぶって、ちょっと エラそうに している。", "まよいごを みちびく ランタンを もった、しんせつな おばけ。", "ほしぞらと おなじ もようをもつ、よるの せかいの おうさま。"],
-      ["ぜんまいで うごく、ポンコツだけど にくめない ロボット。", "おおきな デンチを せおって、いちにちじゅう はしりまわる。", "そらを とべる ようになった、きんみらいの きどうへいき。", "ぜんうちゅうの ぎじゅつを あつめて つくられた さいきょうの メカ。"]
+      ["いつも あたたかい。さむいひは みんなの ストーブがわりに なるよ。","しっぽの ほのおが おおきくなった。げんきいっぱいに はしりまわる。","ほのおの よろいを まとった ライオン。とても たのもしい。","ほえるだけで じしんが おこる でんせつのライオン。ぜったいに おこらせてはいけない。"],
+      ["あたまの はっぱが トレードマーク。ひなたぼっこが だいすき。","つのが きのえだのように なった。もりの なかを かけぬける。","からだから きのつるが はえている。もりの どうぶつたちの リーダー。","もり そのもののような でんせつの シカ。あしあとに おはなが さくよ。"],
+      ["あわを ふいて あそぶのが だいすきな あかちゃん。","みずの なかを ロケットのように はやく およげるようになったよ。","うみを まもる かしこい シャチ。なみを あやつる ちからを もつ。","うみの おうさま。しっぽを ふるだけで おおきな うずしおが できるよ。"],
+      ["まだ タマゴの からを かぶっている。ちょっと おくびょう。","はねが はえて、すこしだけ そらを とべるようになったよ。","かたい ウロコに おおわれて、どんな こうげきも へっちゃら。","そらを おおいつくす ほどの おおきな はねをもつ でんせつの ドラゴン。"],
+      ["いたずらが だいすきな こあくま。あまい おかしに めがない。","よるに なると げんきに とびまわる。ちょっと きざな やつ。","やみの けんを もつ きし。クールで とても かっこいい。","やみの せかいを すべる まおう。こわそうだけど じつは やさしい？"],
+      ["いしころのように かたい からだ。よく じかんに おくれる。","からだから キラキラの クリスタルが はえてきて じまんげ。","どんな ぶきも はねかえす、てっぺきの からだを もつ。","ぜんしんが ほうせきで できた でんせつの ゴリラ。まぶしすぎる！"],
+      ["はっぱを たくさん たべて、おおきくなる じゅんびを しているよ。","かたい まゆの なかで、つぎの しんかの ために じっと している。","りっぱな つのが はえた！もりの きの みつが だいすき。","はがねの ような からだを もつ、こんちゅうたちの おうさま。"],
+      ["おはなの においが する、ちいさな ちいさな ようせい。","おはなばたけを とびまわり、みんなに えがおを とどけるよ。","まほうの けんを あやつる、うつくしくて つよい きし。","にじいろに ひかる でんせつの ようせい。せかいに へいわを もたらす。"],
+      ["ふわふわ している おばけ。ひとを おどろかせるのが すき。","おとなの ぼうしを かぶって、ちょっと エラそうに している。","まよいごを みちびく ランタンを もった、しんせつな おばけ。","ほしぞらと おなじ もようをもつ、よるの せかいの おうさま。"],
+      ["ぜんまいで うごく、ポンコツだけど にくめない ロボット。","おおきな デンチを せおって、いちにちじゅう はしりまわる。","そらを とべる ようになった、きんみらいの きどうへいき。","ぜんうちゅうの ぎじゅつを あつめて つくられた さいきょうの メカ。"]
     ];
 
     // 進化の条件（第4形態は40問に設定）
