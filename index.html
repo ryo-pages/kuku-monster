@@ -27,7 +27,7 @@
 
     /* サウンド切り替えボタン */
     #sound-controls {
-      position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 1000;
+      position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 1000;
     }
     .sound-btn {
       background: rgba(255,255,255,0.9);
@@ -130,8 +130,8 @@
 <body class="bg-theme-start" id="body-bg">
 
   <div id="sound-controls">
-    <button id="bgm-toggle" class="sound-btn" onclick="toggleBGM()">🎵 BGM: ON</button>
-    <button id="se-toggle" class="sound-btn" onclick="toggleSE()">🔊 SE: ON</button>
+    <button id="bgm-toggle" class="sound-btn" onclick="toggleBGM()">🎵 BGM: オン</button>
+    <button id="se-toggle" class="sound-btn" onclick="toggleSE()">🔊 SE: オン</button>
   </div>
   <audio id="bgm" src="bgm.mp3" loop></audio>
 
@@ -301,10 +301,10 @@
       const bgm = document.getElementById('bgm');
       
       if (isBGMOn) {
-        btn.textContent = '🎵 BGM: ON';
+        btn.textContent = '🎵 BGM: オン';
         if(bgm && bgm.paused) { bgm.play().catch(e => console.log("BGMブロック")); }
       } else {
-        btn.textContent = '🎵 BGM: OFF';
+        btn.textContent = '🔇 BGM: オフ';
         if(bgm) { bgm.pause(); }
       }
     }
@@ -313,9 +313,9 @@
       isSEOn = !isSEOn;
       const btn = document.getElementById('se-toggle');
       if (isSEOn) {
-        btn.textContent = '🔊 SE: ON';
+        btn.textContent = '🔊 SE: オン';
       } else {
-        btn.textContent = '🔇 SE: OFF';
+        btn.textContent = '🔇 SE: オフ';
       }
     }
 
@@ -438,7 +438,7 @@
       playSound('click');
       
       setTimeout(() => {
-        if (userData.eggScore === 0 && userData.unlockedMonsters.length !== 40) {
+        if (userData.unlockedMonsters.length === 0) {
           resetEggUI();
           showScreen('egg-screen');
         } else {
@@ -538,6 +538,7 @@
         element.classList.remove('egg-floating-glow');
         element.classList.add('egg-hatch');
         
+        userData.eggScore = 0;
         unlockMonster(userData.currentLine, 0);
         saveData();
 
@@ -547,8 +548,6 @@
     }
 
     function startNewEgg() {
-      userData.eggScore = 0;
-      saveData();
       resetEggUI();
       showScreen('egg-screen');
     }
@@ -768,7 +767,7 @@
       let current = parseInt(document.getElementById('question-counter').dataset.current);
       const total = parseInt(document.getElementById('question-counter').dataset.total);
       
-      // 全問題数を超えて「10/9」のように表示されるのを防ぐ
+      // 全問題数を超えて表示されるのを防ぐ
       if (current > total) current = total;
       
       document.getElementById('question-counter').textContent = `問題: ${current}/${total}`;
