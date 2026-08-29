@@ -26,13 +26,16 @@
     .bg-theme-start { background: linear-gradient(to bottom, #a18cd1, #fbc2eb); }
 
     /* サウンド切り替えボタン */
-    #sound-toggle {
-      position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9);
-      border: 2px solid #ccc; border-radius: 20px; padding: 8px 15px;
-      font-size: 1em; font-weight: bold; cursor: pointer; z-index: 1000;
+    #sound-controls {
+      position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 1000;
+    }
+    .sound-btn {
+      background: rgba(255,255,255,0.9);
+      border: 2px solid #ccc; border-radius: 20px; padding: 8px 12px;
+      font-size: 0.9em; font-weight: bold; cursor: pointer;
       box-shadow: 0 4px 0 #bbb; transition: all 0.1s; color: #333;
     }
-    #sound-toggle:active { transform: translateY(4px); box-shadow: none; }
+    .sound-btn:active { transform: translateY(4px); box-shadow: none; }
 
     .container {
       background-color: rgba(255, 255, 255, 0.95); width: 100%; max-width: 600px;
@@ -126,7 +129,10 @@
 </head>
 <body class="bg-theme-start" id="body-bg">
 
-  <button id="sound-toggle" onclick="toggleSound()">🔊 音あり</button>
+  <div id="sound-controls">
+    <button id="bgm-toggle" class="sound-btn" onclick="toggleBGM()">🎵 BGM: ON</button>
+    <button id="se-toggle" class="sound-btn" onclick="toggleSE()">🔊 SE: ON</button>
+  </div>
   <audio id="bgm" src="bgm.mp3" loop></audio>
 
   <div class="container">
@@ -286,36 +292,46 @@
     // === Web Audio API（効果音の生成） ===
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let actx = null;
-    let isSoundOn = true;
+    let isBGMOn = true;
+    let isSEOn = true;
 
-    function toggleSound() {
-      isSoundOn = !isSoundOn;
-      const btn = document.getElementById('sound-toggle');
+    function toggleBGM() {
+      isBGMOn = !isBGMOn;
+      const btn = document.getElementById('bgm-toggle');
       const bgm = document.getElementById('bgm');
       
-      if (isSoundOn) {
-        btn.textContent = '🔊 音あり';
+      if (isBGMOn) {
+        btn.textContent = '🎵 BGM: ON';
         if(bgm && bgm.paused) { bgm.play().catch(e => console.log("BGMブロック")); }
       } else {
-        btn.textContent = '🔇 音なし';
+        btn.textContent = '🎵 BGM: OFF';
         if(bgm) { bgm.pause(); }
       }
     }
 
+    function toggleSE() {
+      isSEOn = !isSEOn;
+      const btn = document.getElementById('se-toggle');
+      if (isSEOn) {
+        btn.textContent = '🔊 SE: ON';
+      } else {
+        btn.textContent = '🔇 SE: OFF';
+      }
+    }
+
     function initAudio() {
-      if (!isSoundOn) return;
       if (!actx) actx = new AudioContext();
       if (actx.state === 'suspended') actx.resume();
       
       const bgm = document.getElementById('bgm');
-      if(bgm) {
+      if(bgm && isBGMOn) {
         bgm.volume = 0.2; 
         if (bgm.paused) { bgm.play().catch(e => console.log("BGMブロック")); }
       }
     }
 
     function playSound(type) {
-      if (!isSoundOn || !actx) return;
+      if (!isSEOn || !actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
       osc.connect(gain);
@@ -749,8 +765,12 @@
 
     function updateScoreUI() {
       document.getElementById('score-text').textContent = userData.totalScore;
-      const current = document.getElementById('question-counter').dataset.current;
-      const total = document.getElementById('question-counter').dataset.total;
+      let current = parseInt(document.getElementById('question-counter').dataset.current);
+      const total = parseInt(document.getElementById('question-counter').dataset.total);
+      
+      // 全問題数を超えて「10/9」のように表示されるのを防ぐ
+      if (current > total) current = total;
+      
       document.getElementById('question-counter').textContent = `問題: ${current}/${total}`;
     }
 
