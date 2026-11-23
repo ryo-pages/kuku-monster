@@ -60,11 +60,34 @@
     .btn-dan { background-color: #ffeaa7; box-shadow: 0 4px 0 #fdcb6e; }
     .btn-mode { background-color: #74b9ff; box-shadow: 0 4px 0 #0984e3; color: white; }
     .btn-random { background-color: #a29bfe; box-shadow: 0 4px 0 #6c5ce7; color: white; }
+    .btn-time60 { background-color: #ff7675; box-shadow: 0 4px 0 #d63031; color: white; width: 100%; margin-top: 10px; }
     .btn-zukan { background-color: #ff9ff3; box-shadow: 0 4px 0 #f368e0; color: white; margin-bottom: 15px; width: 100%; }
     .btn-partner { background-color: #f368e0; box-shadow: 0 4px 0 #d94dbf; color: white; margin-bottom: 10px; width: 100%; }
 
     .btn-relative { position: relative; }
     .medal-icon { position: absolute; top: -12px; left: -10px; font-size: 1.8em; z-index: 10; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
+    .best-sub { display: block; font-size: 0.65em; font-weight: normal; margin-top: 4px; opacity: 0.95; }
+
+    /* タイマー表示 */
+    .timer-bar {
+      background: #2f3542; color: #fff; font-size: 1.4em; font-weight: bold;
+      padding: 6px 15px; border-radius: 12px; margin-bottom: 10px;
+      display: inline-block; min-width: 140px; letter-spacing: 1px;
+    }
+    .timer-danger { background: #ff4757; animation: pulse 0.5s infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
+
+    .result-box {
+      background: #f8f9fa; border: 3px solid #74b9ff; border-radius: 15px;
+      padding: 15px; margin: 15px 0;
+    }
+    .result-main { font-size: 2em; font-weight: bold; color: #2f3542; margin: 5px 0; }
+    .result-best { font-size: 1.1em; font-weight: bold; color: #555; }
+    .new-record {
+      display: inline-block; background: #ff4757; color: #fff;
+      padding: 4px 12px; border-radius: 20px; font-size: 0.95em; font-weight: bold;
+      margin-bottom: 8px; animation: pop-in 0.4s ease;
+    }
 
     /* タマゴと進化のエフェクト */
     .egg-item { font-size: 5em; cursor: pointer; transition: opacity 0.3s; margin: 0 10px; display: inline-block; }
@@ -95,7 +118,7 @@
     .warning-text { color: #e74c3c; font-size: 0.9em; font-weight: bold; margin-bottom: 15px; background: #ffeaa7; padding: 5px; border-radius: 5px; }
     .question-area { font-size: 4em; font-weight: bold; color: #2f3542; margin: 15px 0; letter-spacing: 5px; }
     .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .option-btn { background-color: #fff; border: 3px solid #74b9ff; border-radius: 15px; padding: 20px 10px; font-size: 2.2em; font-weight: bold; color: #0984e3; cursor: pointer; box-shadow: 0 5px 0 #74b9ff; }
+    .option-btn { background-color: #fff; border: 3px solid #74b9ff; border-radius: 15px; padding: 20px 10px; font-size: 2.2em; font-weight: bold; color: #0984e3; cursor: pointer; box-shadow: 0 5px 0 #74b9ff; touch-action: manipulation; }
     .option-btn:active { transform: translateY(5px); box-shadow: none; }
 
     /* 図鑑画面 */
@@ -185,6 +208,10 @@
           <button class="btn btn-random" onclick="playSound('click'); startRandomGame(30)">30問</button>
           <button class="btn btn-random" onclick="playSound('click'); startRandomGame(50)">50問</button>
         </div>
+        <button id="btn-time60" class="btn btn-time60" onclick="playSound('click'); startTime60Game()">
+          ⏱ 60びょう チャレンジ！
+          <span class="best-sub" id="home-best-60s">ベスト：0もん</span>
+        </button>
       </div>
 
       <!-- 相棒モード時は非表示になるタマゴボタン -->
@@ -199,9 +226,18 @@
         <div class="modal-box">
           <h2 id="modal-title"></h2>
           <div class="grid-3">
-            <button id="modal-btn-up" class="btn btn-mode btn-relative" onclick="playSound('click'); startDanGame('up')"><ruby>上<rt>のぼ</rt></ruby>り</button>
-            <button id="modal-btn-down" class="btn btn-mode btn-relative" onclick="playSound('click'); startDanGame('down')"><ruby>下<rt>くだ</rt></ruby>り</button>
-            <button id="modal-btn-random" class="btn btn-mode btn-relative" onclick="playSound('click'); startDanGame('random')">ランダム</button>
+            <button id="modal-btn-up" class="btn btn-mode btn-relative" onclick="playSound('click'); startDanGame('up')">
+              <ruby>上<rt>のぼ</rt></ruby>り
+              <span class="best-sub" id="best-up">--</span>
+            </button>
+            <button id="modal-btn-down" class="btn btn-mode btn-relative" onclick="playSound('click'); startDanGame('down')">
+              <ruby>下<rt>くだ</rt></ruby>り
+              <span class="best-sub" id="best-down">--</span>
+            </button>
+            <button id="modal-btn-random" class="btn btn-mode btn-relative" onclick="playSound('click'); startDanGame('random')">
+              ランダム
+              <span class="best-sub" id="best-random">--</span>
+            </button>
           </div>
           <button class="btn" style="background: #ccc; margin-top: 20px; width: 100%;" onclick="playSound('cancel'); document.getElementById('mode-modal').classList.add('hidden')">もどる</button>
         </div>
@@ -215,16 +251,22 @@
         <div style="color: #555;" id="question-counter">問題: 1/9</div>
         <div class="correct-badge">るいけい：<span id="score-text">0</span>問</div>
       </div>
+      <div id="timer-display" class="timer-bar hidden">⏱ 0.0びょう</div>
       <div class="warning-text hidden" id="grind-warning">※クリアずみの モードは ポイントが ふえないよ</div>
       <div class="question-area" id="question-text"></div>
       <div class="options-grid" id="options-container"></div>
     </div>
 
     <!-- 3.5 クリア画面 -->
-    <div id="clear-screen" class="hidden" style="padding: 40px 20px;">
-      <h1 style="color: #ff9f43; font-size: 3em;">クリア！！</h1>
-      <h2>よくがんばったね！</h2>
-      <button class="btn btn-mode" style="width: 100%; padding: 20px; margin-top: 20px;" onclick="playSound('click'); afterClear()">タイトルへもどる</button>
+    <div id="clear-screen" class="hidden" style="padding: 30px 20px;">
+      <h1 id="clear-title" style="color: #ff9f43; font-size: 2.8em;">クリア！！</h1>
+      <h2 id="clear-subtitle">よくがんばったね！</h2>
+      <div id="clear-result-box" class="result-box hidden">
+        <div id="clear-new-record" class="new-record hidden">🎉 じこベスト こうしん！ 🎉</div>
+        <div id="clear-result-main" class="result-main"></div>
+        <div id="clear-result-best" class="result-best"></div>
+      </div>
+      <button class="btn btn-mode" style="width: 100%; padding: 20px; margin-top: 15px;" onclick="playSound('click'); afterClear()">タイトルへもどる</button>
     </div>
 
     <!-- 4. 進化画面 -->
@@ -413,18 +455,28 @@
     let userData = {
       totalScore: 0, eggScore: 0, currentLine: 0, clearedDan: {}, unlockedMonsters: [],
       hasSeenDanEnding: false, hasSeenZukanEnding: false,
-      partner: null // コンプ後の相棒データ { line, stage }
+      partner: null,
+      bestTimes: {}, // 各段タイムアタックの自己ベスト（秒）
+      best60s: 0     // 60秒チャレンジの自己ベスト（問数）
     };
     let questionQueue = [];
     let currentQuestion = null;
+    let lastQuestionKey = '';
     let isAnswering = false;
     let eggSelected = false;
-    let gameType = '';
+    let gameType = ''; // 'dan', 'challenge', 'time60'
     let selectedDan = null;
     let currentMode = '';
     let currentStage = 0;
     let canEarnPoint = true;
-    let selectedForPartner = null; // 図鑑で選んだ一時データ
+    let selectedForPartner = null;
+
+    // タイマー管理用
+    let timerInterval = null;
+    let timerStartTime = 0;
+    let timerElapsedMs = 0;
+    let time60CorrectCount = 0;
+    let pendingEvoAfterClear = false;
 
     // === 初期化とデータ保存 ===
     window.onload = () => {
@@ -451,11 +503,13 @@
       for (let i=1; i<=9; i++) {
         if(!userData.clearedDan[i]) userData.clearedDan[i] = { up: false, down: false, random: false };
       }
+      if (!userData.bestTimes) userData.bestTimes = {};
+      if (typeof userData.best60s !== 'number') userData.best60s = 0;
     }
 
     function loadData() {
       try {
-        const saved = localStorage.getItem('kukuIkuseiData_v7'); // バージョン更新
+        const saved = localStorage.getItem('kukuIkuseiData_v7');
         if (saved) {
           const parsed = JSON.parse(saved);
           userData = { ...userData, ...parsed };
@@ -554,13 +608,12 @@
 
     // === トップ画面 ===
     function showHomeScreen() {
+      stopTimer();
       showScreen('home-screen');
 
-      // 相棒モード（コンプ後）の判定
       const isComp = (userData.unlockedMonsters.length === 40);
 
       if (isComp) {
-        // コンプ状態で相棒が未設定なら、現在の子を相棒にする
         if (!userData.partner) {
           userData.partner = { line: userData.currentLine, stage: currentStage };
         }
@@ -569,9 +622,8 @@
         document.getElementById('home-image').src = p.image;
         document.getElementById('home-name').innerHTML = p.name;
         document.getElementById('home-progress').textContent = "あいぼう と いっしょに 九九を きわめよう！";
-        document.getElementById('btn-new-egg').classList.add('hidden'); // タマゴボタンを隠す
+        document.getElementById('btn-new-egg').classList.add('hidden');
       } else {
-        // 通常の育成モード
         document.getElementById('body-bg').className = `bg-theme-${userData.currentLine}`;
         currentStage = getStage(userData.eggScore);
         const m = monsterLines[userData.currentLine][currentStage];
@@ -587,6 +639,7 @@
         }
       }
 
+      document.getElementById('home-best-60s').textContent = `ベスト：${userData.best60s}もん`;
       generateDanButtons();
       checkEndings();
     }
@@ -614,7 +667,7 @@
       selectedDan = dan;
       document.getElementById('modal-title').textContent = `${dan}の段`;
 
-      const updateMedal = (mode, btnId) => {
+      const updateModalBtn = (mode, btnId, bestId) => {
         const btn = document.getElementById(btnId);
         const exist = btn.querySelector('.medal-icon');
         if(exist) exist.remove();
@@ -623,10 +676,14 @@
           medal.className = 'medal-icon'; medal.textContent = '🏅';
           btn.appendChild(medal);
         }
-      }
-      updateMedal('up', 'modal-btn-up');
-      updateMedal('down', 'modal-btn-down');
-      updateMedal('random', 'modal-btn-random');
+        const bestKey = `${dan}-${mode}`;
+        const bestVal = userData.bestTimes[bestKey];
+        document.getElementById(bestId).textContent = bestVal ? `⏱ ${bestVal.toFixed(1)}秒` : 'きろく なし';
+      };
+
+      updateModalBtn('up', 'modal-btn-up', 'best-up');
+      updateModalBtn('down', 'modal-btn-down', 'best-down');
+      updateModalBtn('random', 'modal-btn-random', 'best-random');
 
       document.getElementById('mode-modal').classList.remove('hidden');
     }
@@ -683,7 +740,6 @@
       document.getElementById('detail-img').src = m.image;
       document.getElementById('detail-desc').innerText = desc;
 
-      // 相棒設定ボタンの表示（コンプ後のみ）
       const partnerBtn = document.getElementById('btn-set-partner');
       if (userData.unlockedMonsters.length === 40) {
         partnerBtn.classList.remove('hidden');
@@ -707,6 +763,66 @@
 
     function showResetModal() { document.getElementById('reset-modal').classList.remove('hidden'); }
     function doReset() { try { localStorage.removeItem('kukuIkuseiData_v7'); } catch(e){} location.reload(); }
+
+    // === タイマー制御 ===
+    function startTimer(mode) {
+      stopTimer();
+      timerElapsedMs = 0;
+      timerStartTime = Date.now();
+      const el = document.getElementById('timer-display');
+      el.classList.remove('hidden', 'timer-danger');
+
+      if (mode === 'up') {
+        el.textContent = '⏱ 0.0びょう';
+        timerInterval = setInterval(() => {
+          const sec = (timerElapsedMs + (Date.now() - timerStartTime)) / 1000;
+          el.textContent = `⏱ ${sec.toFixed(1)}びょう`;
+        }, 100);
+      } else if (mode === 'down60') {
+        el.textContent = '⏱ のこり 60.0びょう';
+        timerInterval = setInterval(() => {
+          const elapsed = (timerElapsedMs + (Date.now() - timerStartTime)) / 1000;
+          const remain = Math.max(0, 60 - elapsed);
+          el.textContent = `⏱ のこり ${remain.toFixed(1)}びょう`;
+          if (remain <= 10) el.classList.add('timer-danger');
+          if (remain <= 0) {
+            finishTime60Game();
+          }
+        }, 100);
+      }
+    }
+
+    function pauseTimer() {
+      if (!timerInterval) return;
+      timerElapsedMs += (Date.now() - timerStartTime);
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resumeTimer() {
+      if (gameType !== 'dan') return;
+      timerStartTime = Date.now();
+      const el = document.getElementById('timer-display');
+      timerInterval = setInterval(() => {
+        const sec = (timerElapsedMs + (Date.now() - timerStartTime)) / 1000;
+        el.textContent = `⏱ ${sec.toFixed(1)}びょう`;
+      }, 100);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById('timer-display').classList.add('hidden');
+      document.getElementById('timer-display').classList.remove('timer-danger');
+    }
+
+    function getElapsedSeconds() {
+      let totalMs = timerElapsedMs;
+      if (timerInterval) totalMs += (Date.now() - timerStartTime);
+      return Math.round((totalMs / 1000) * 10) / 10;
+    }
 
     // === ゲームロジック ===
     function startDanGame(mode) {
@@ -734,6 +850,7 @@
         arr.forEach(i => questionQueue.push({n1: selectedDan, n2: i}));
       }
       startGame();
+      startTimer('up');
     }
 
     function startRandomGame(count) {
@@ -744,6 +861,18 @@
         questionQueue.push({ n1: Math.floor(Math.random()*9)+1, n2: Math.floor(Math.random()*9)+1 });
       }
       startGame();
+      stopTimer();
+    }
+
+    function startTime60Game() {
+      gameType = 'time60';
+      canEarnPoint = true;
+      time60CorrectCount = 0;
+      lastQuestionKey = '';
+      pendingEvoAfterClear = false;
+      questionQueue = [];
+      startGame();
+      startTimer('down60');
     }
 
     function startGame() {
@@ -764,27 +893,40 @@
 
     function updateScoreUI() {
       document.getElementById('score-text').textContent = userData.totalScore;
+      if (gameType === 'time60') {
+        document.getElementById('question-counter').textContent = `せいかい: ${time60CorrectCount}もん`;
+        return;
+      }
       let current = parseInt(document.getElementById('question-counter').dataset.current);
       const total = parseInt(document.getElementById('question-counter').dataset.total);
-      
-      // 全問題数を超えて表示されるのを防ぐ
       if (current > total) current = total;
-      
       document.getElementById('question-counter').textContent = `問題: ${current}/${total}`;
     }
 
+    function createRandomQuestionNoRepeat() {
+      let n1, n2, key;
+      do {
+        n1 = Math.floor(Math.random() * 9) + 1;
+        n2 = Math.floor(Math.random() * 9) + 1;
+        key = `${n1}-${n2}`;
+      } while (key === lastQuestionKey);
+      lastQuestionKey = key;
+      return { n1, n2 };
+    }
+
     function askNext() {
-      if (questionQueue.length === 0) {
-        if (gameType === 'dan') {
-          userData.clearedDan[selectedDan][currentMode] = true;
-          saveData();
+      if (gameType === 'time60') {
+        isAnswering = false;
+        currentQuestion = createRandomQuestionNoRepeat();
+      } else {
+        if (questionQueue.length === 0) {
+          finishNormalGame();
+          return;
         }
-        playSound('clear');
-        showScreen('clear-screen');
-        return;
+        isAnswering = false;
+        currentQuestion = questionQueue.shift();
       }
-      isAnswering = false;
-      currentQuestion = questionQueue.shift();
+
       const ans = currentQuestion.n1 * currentQuestion.n2;
       document.getElementById('question-text').textContent = `${currentQuestion.n1} × ${currentQuestion.n2} = ?`;
 
@@ -808,6 +950,86 @@
       });
     }
 
+    function finishNormalGame() {
+      const clearTitle = document.getElementById('clear-title');
+      const clearSub = document.getElementById('clear-subtitle');
+      const resultBox = document.getElementById('clear-result-box');
+      const newRecordEl = document.getElementById('clear-new-record');
+      const resultMain = document.getElementById('clear-result-main');
+      const resultBest = document.getElementById('clear-result-best');
+
+      clearTitle.textContent = 'クリア！！';
+      clearSub.textContent = 'よくがんばったね！';
+
+      if (gameType === 'dan') {
+        const finalTime = getElapsedSeconds();
+        stopTimer();
+        userData.clearedDan[selectedDan][currentMode] = true;
+
+        const bestKey = `${selectedDan}-${currentMode}`;
+        const prevBest = userData.bestTimes[bestKey];
+        let isNewRecord = false;
+        if (!prevBest || finalTime < prevBest) {
+          userData.bestTimes[bestKey] = finalTime;
+          isNewRecord = true;
+        }
+        saveData();
+
+        resultBox.classList.remove('hidden');
+        resultMain.textContent = `⏱ ${finalTime.toFixed(1)} びょう`;
+        resultBest.textContent = `じこベスト：${userData.bestTimes[bestKey].toFixed(1)} びょう`;
+        if (isNewRecord) {
+          newRecordEl.classList.remove('hidden');
+          createConfetti();
+        } else {
+          newRecordEl.classList.add('hidden');
+        }
+      } else {
+        stopTimer();
+        resultBox.classList.add('hidden');
+      }
+
+      playSound('clear');
+      showScreen('clear-screen');
+    }
+
+    function finishTime60Game() {
+      stopTimer();
+      isAnswering = true;
+
+      let isNewRecord = false;
+      if (time60CorrectCount > userData.best60s) {
+        userData.best60s = time60CorrectCount;
+        isNewRecord = true;
+      }
+
+      // 60秒チャレンジ中に進化条件を満たしていたかチェック
+      if (userData.unlockedMonsters.length < 40) {
+        let newStage = getStage(userData.eggScore);
+        if (newStage > currentStage) {
+          pendingEvoAfterClear = true;
+        }
+      }
+      saveData();
+
+      document.getElementById('clear-title').textContent = 'タイムアップ！！';
+      document.getElementById('clear-subtitle').textContent = '60びょう チャレンジ しゅうりょう！';
+      document.getElementById('clear-result-box').classList.remove('hidden');
+      document.getElementById('clear-result-main').textContent = `${time60CorrectCount} もん せいかい！`;
+      document.getElementById('clear-result-best').textContent = `じこベスト：${userData.best60s} もん`;
+
+      const newRecordEl = document.getElementById('clear-new-record');
+      if (isNewRecord && time60CorrectCount > 0) {
+        newRecordEl.classList.remove('hidden');
+        createConfetti();
+      } else {
+        newRecordEl.classList.add('hidden');
+      }
+
+      playSound('clear');
+      showScreen('clear-screen');
+    }
+
     function checkAnswer(selected, correct) {
       if (isAnswering) return;
       isAnswering = true;
@@ -818,20 +1040,27 @@
         
         if (canEarnPoint) {
           userData.totalScore++;
-          // 相棒モード（コンプ後）は進化スコアを加算・判定しない
           if (userData.unlockedMonsters.length < 40) {
             userData.eggScore++;
           }
+        }
+
+        if (gameType === 'time60') {
+          time60CorrectCount++;
+          updateScoreUI();
+          saveData();
+          setTimeout(askNext, 250); // 60秒チャレンジはテンポ重視で少し速く次へ
+          return;
         }
         
         let c = parseInt(document.getElementById('question-counter').dataset.current);
         document.getElementById('question-counter').dataset.current = c + 1;
         updateScoreUI();
 
-        // 進化判定（相棒モード中は無視される）
         if (userData.unlockedMonsters.length < 40) {
           let newStage = getStage(userData.eggScore);
           if (newStage > currentStage) {
+            pauseTimer(); // 進化演出中はタイマーを一時停止
             currentStage = newStage;
             unlockMonster(userData.currentLine, currentStage);
             saveData();
@@ -841,24 +1070,41 @@
         }
 
         saveData();
-        setTimeout(askNext, 600);
+        setTimeout(askNext, 500);
       } else {
         playSound('wrong');
         showFeedback('✕', 'wrong-anim');
-        setTimeout(() => { isAnswering = false; }, 600);
+        setTimeout(() => { isAnswering = false; }, 500);
       }
     }
 
     function afterClear() {
+      if (pendingEvoAfterClear) {
+        pendingEvoAfterClear = false;
+        let newStage = getStage(userData.eggScore);
+        if (newStage > currentStage) {
+          // 複数段階一気に上がった場合もすべて図鑑登録
+          for (let s = currentStage + 1; s <= newStage; s++) {
+            unlockMonster(userData.currentLine, s);
+          }
+          currentStage = newStage;
+          saveData();
+          triggerEvolution(true);
+          return;
+        }
+      }
       showHomeScreen();
     }
 
     function returnToHome() {
+      stopTimer();
       showHomeScreen();
     }
 
     // === 進化の豪華アニメーション ===
-    function triggerEvolution() {
+    let evoReturnToHome = false;
+    function triggerEvolution(goHomeAfter = false) {
+      evoReturnToHome = goHomeAfter;
       showScreen('evo-screen');
       document.getElementById('body-bg').className = `bg-theme-${userData.currentLine}`;
       
@@ -870,7 +1116,7 @@
       title.style.opacity = 0; subtitle.style.opacity = 0; nameEl.style.opacity = 0; btn.classList.add('hidden');
       
       const imgEl = document.getElementById('evo-image');
-      const oldStage = currentStage - 1;
+      const oldStage = Math.max(0, currentStage - 1);
       imgEl.src = monsterLines[userData.currentLine][oldStage].image;
       imgEl.className = 'evo-img';
       void imgEl.offsetWidth; 
@@ -896,7 +1142,16 @@
       }, 1500);
     }
 
-    function endEvolution() { showScreen('game-screen'); askNext(); }
+    function endEvolution() {
+      if (evoReturnToHome) {
+        evoReturnToHome = false;
+        showHomeScreen();
+      } else {
+        showScreen('game-screen');
+        resumeTimer();
+        askNext();
+      }
+    }
 
     function showFeedback(mark, className) {
       const fb = document.getElementById('feedback');
