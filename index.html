@@ -127,20 +127,32 @@
     .option-btn:active { transform: translateY(5px); box-shadow: none; }
 
     /* 図鑑・対戦選択グリッド */
-    .zukan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; max-height: 45vh; overflow-y: auto; padding-right: 5px;}
+    .zukan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; max-height: 36vh; overflow-y: auto; padding-right: 4px;}
     .zukan-item { background: rgba(255,255,255,0.85); border-radius: 12px; padding: 8px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1; cursor: pointer; transition: transform 0.1s; border: 3px solid transparent; }
     .zukan-item:active { transform: scale(0.95); box-shadow: none; }
-    .zukan-img { width: 100%; height: 65px; object-fit: contain; margin-bottom: 4px; pointer-events: none; }
+    .zukan-img { width: 100%; height: 60px; object-fit: contain; margin-bottom: 4px; pointer-events: none; }
     .zukan-unknown { filter: brightness(0) opacity(0.2); }
     .zukan-name { font-size: 0.65em; font-weight: bold; color: #555; line-height: 1.2; word-break: keep-all; pointer-events: none;}
 
-    /* 対戦選択ステータス */
-    .battle-pick-preview { display: flex; justify-content: space-around; align-items: center; background: #f1f2f6; border-radius: 15px; padding: 10px; margin-bottom: 10px; }
-    .pick-slot { width: 42%; background: #fff; border-radius: 12px; padding: 8px; border: 3px solid #ddd; }
+    /* 対戦選択ステータス＆段選択 */
+    .battle-pick-preview { display: flex; justify-content: space-around; align-items: center; background: #f1f2f6; border-radius: 15px; padding: 8px; margin-bottom: 10px; }
+    .pick-slot { width: 42%; background: #fff; border-radius: 12px; padding: 6px; border: 3px solid #ddd; cursor: pointer; }
     .pick-slot.active-p1 { border-color: #0984e3; background: #e8f4fd; }
     .pick-slot.active-p2 { border-color: #e17055; background: #fdece8; }
-    .pick-slot img { width: 60px; height: 60px; object-fit: contain; }
-    .pick-label { font-size: 0.85em; font-weight: bold; margin-bottom: 4px; }
+    .pick-slot img { width: 52px; height: 52px; object-fit: contain; }
+    .pick-label { font-size: 0.8em; font-weight: bold; margin-bottom: 2px; }
+
+    .battle-dan-box { background: #f8f9fa; border-radius: 12px; padding: 10px; margin-bottom: 10px; }
+    .battle-dan-title { font-size: 0.9em; font-weight: bold; color: #2c3e50; margin-bottom: 8px; }
+    .battle-dan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .dan-chip {
+      border: 2px solid #ccc; background: #fff; color: #666; border-radius: 8px;
+      padding: 8px 2px; font-size: 0.9em; font-weight: bold; cursor: pointer;
+      touch-action: manipulation;
+    }
+    .dan-chip.selected { background: #ffeaa7; border-color: #fdcb6e; color: #222; box-shadow: 0 2px 0 #fdcb6e; }
+    .dan-chip-all { background: #dfe6e9; border-color: #b2bec3; color: #2d3436; }
+    .dan-chip-all.selected { background: #a29bfe; border-color: #6c5ce7; color: #fff; box-shadow: 0 2px 0 #6c5ce7; }
 
     /* === 1台2人対戦（HPバトル）全画面UI === */
     #battle-screen {
@@ -188,9 +200,9 @@
     }
 
     /* 攻撃・被弾アニメーション */
-    .anim-attack { animation: lunge 0.35s ease; }
+    .anim-attack { animation: lunge 0.3s ease; }
     @keyframes lunge { 0% { transform: scale(1); } 40% { transform: scale(1.25) translateY(-10px); } 100% { transform: scale(1); } }
-    .anim-damage { animation: shake-hit 0.35s ease; }
+    .anim-damage { animation: shake-hit 0.3s ease; }
     @keyframes shake-hit {
       0%, 100% { transform: translateX(0); filter: none; }
       25% { transform: translateX(-10px); filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5); }
@@ -319,23 +331,29 @@
       </div>
     </div>
 
-    <!-- 2.5 対戦モンスター選択画面 -->
+    <!-- 2.5 対戦モンスター＆段選択画面 -->
     <div id="battle-select-screen" class="hidden">
-      <h1 style="color: #00b894; margin-bottom: 5px;">⚔️ 2人たいせん</h1>
-      <h2 id="battle-pick-guide" style="margin-bottom: 12px; font-size: 1.1em;">1P（した）の モンスターを えらんでね！</h2>
+      <h1 style="color: #00b894; margin: 0 0 5px;">⚔️ 2人たいせん</h1>
+      <h2 id="battle-pick-guide" style="margin: 0 0 10px; font-size: 1.05em;">1P（した）の モンスターを えらんでね！</h2>
 
       <div class="battle-pick-preview">
         <div id="pick-slot-1" class="pick-slot active-p1" onclick="setPickingTurn(1)">
           <div class="pick-label" style="color: #0984e3;">1P（した）</div>
           <img id="pick-img-1" src="" class="hidden">
-          <div id="pick-name-1" style="font-size: 0.85em; font-weight: bold; color: #888;">えらんでね</div>
+          <div id="pick-name-1" style="font-size: 0.8em; font-weight: bold; color: #888;">えらんでね</div>
         </div>
-        <div style="font-size: 1.5em; font-weight: bold; color: #ff7675;">VS</div>
+        <div style="font-size: 1.4em; font-weight: bold; color: #ff7675;">VS</div>
         <div id="pick-slot-2" class="pick-slot" onclick="setPickingTurn(2)">
           <div class="pick-label" style="color: #e17055;">2P（うえ）</div>
           <img id="pick-img-2" src="" class="hidden">
-          <div id="pick-name-2" style="font-size: 0.85em; font-weight: bold; color: #888;">えらんでね</div>
+          <div id="pick-name-2" style="font-size: 0.8em; font-weight: bold; color: #888;">えらんでね</div>
         </div>
+      </div>
+
+      <!-- 出題する段の選択 -->
+      <div class="battle-dan-box">
+        <div class="battle-dan-title">もんだいの 段を えらぼう（いくつでもOK）</div>
+        <div class="battle-dan-grid" id="battle-dan-grid"></div>
       </div>
 
       <div class="zukan-grid" id="battle-monster-grid"></div>
@@ -399,7 +417,7 @@
     <div id="zukan-screen" class="hidden">
       <h1 style="color: #6c5ce7;">📖 モンスターずかん</h1>
       <h2 id="zukan-status">あつめたかず： 0 / 40</h2>
-      <div class="zukan-grid" id="zukan-grid"></div>
+      <div class="zukan-grid" id="zukan-grid" style="max-height: 50vh;"></div>
       <button class="btn" style="background: #ccc; width: 100%;" onclick="playSound('cancel'); showHomeScreen()">もどる</button>
     </div>
     
@@ -472,7 +490,7 @@
       <img id="battle-winner-img" class="detail-img" src="" style="width: 140px; height: 140px;">
       <div id="battle-winner-name" class="monster-name" style="margin-bottom: 20px;"></div>
       <button class="btn btn-battle" onclick="playSound('click'); rematchBattle()">もういちど たたかう</button>
-      <button class="btn btn-mode" style="width: 100%; margin-bottom: 10px;" onclick="playSound('click'); openBattleSelect()">モンスターを かえる</button>
+      <button class="btn btn-mode" style="width: 100%; margin-bottom: 10px;" onclick="playSound('click'); openBattleSelect()">モンスター・段を かえる</button>
       <button class="btn" style="background: #ccc; width: 100%;" onclick="playSound('cancel'); exitBattle()">タイトルへもどる</button>
     </div>
   </div>
@@ -623,12 +641,13 @@
 
     // 対戦モード管理用
     let battlePickTurn = 1;
-    let battleP1 = null; // { line, stage }
-    let battleP2 = null; // { line, stage }
+    let battleP1 = null;
+    let battleP2 = null;
+    let battleSelectedDans = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     let battleHP = { 1: 100, 2: 100 };
-    let battleRoundLocked = false;
+    let battleFinished = false;
     let battlePlayerLocked = { 1: false, 2: false };
-    let battleLastKey = '';
+    let battleLastKey = { 1: '', 2: '' };
 
     // === 初期化とデータ保存 ===
     window.onload = () => {
@@ -1032,10 +1051,10 @@
       document.getElementById('question-counter').textContent = `問題: ${current}/${total}`;
     }
 
-    function createRandomQuestionNoRepeat(prevKey) {
+    function createRandomQuestionNoRepeat(prevKey, allowedDans = [1,2,3,4,5,6,7,8,9]) {
       let n1, n2, key;
       do {
-        n1 = Math.floor(Math.random() * 9) + 1;
+        n1 = allowedDans[Math.floor(Math.random() * allowedDans.length)];
         n2 = Math.floor(Math.random() * 9) + 1;
         key = `${n1}-${n2}`;
       } while (key === prevKey);
@@ -1231,6 +1250,8 @@
       battleP1 = null;
       battleP2 = null;
       battlePickTurn = 1;
+      if (battleSelectedDans.length === 0) battleSelectedDans = [1,2,3,4,5,6,7,8,9];
+      renderBattleDanSelector();
       updateBattlePickUI();
 
       const grid = document.getElementById('battle-monster-grid');
@@ -1249,6 +1270,41 @@
           grid.appendChild(item);
         });
       });
+    }
+
+    function renderBattleDanSelector() {
+      const grid = document.getElementById('battle-dan-grid');
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 9; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'dan-chip' + (battleSelectedDans.includes(i) ? ' selected' : '');
+        btn.textContent = `${i}の段`;
+        btn.onclick = () => {
+          playSound('click');
+          if (battleSelectedDans.includes(i)) {
+            battleSelectedDans = battleSelectedDans.filter(d => d !== i);
+          } else {
+            battleSelectedDans.push(i);
+            battleSelectedDans.sort((a, b) => a - b);
+          }
+          renderBattleDanSelector();
+          updateBattlePickUI();
+        };
+        grid.appendChild(btn);
+      }
+
+      const allBtn = document.createElement('button');
+      const isAll = battleSelectedDans.length === 9;
+      allBtn.className = 'dan-chip dan-chip-all' + (isAll ? ' selected' : '');
+      allBtn.textContent = 'ぜんぶ';
+      allBtn.onclick = () => {
+        playSound('click');
+        battleSelectedDans = isAll ? [] : [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        renderBattleDanSelector();
+        updateBattlePickUI();
+      };
+      grid.appendChild(allBtn);
     }
 
     function setPickingTurn(player) {
@@ -1299,7 +1355,10 @@
 
       const guide = document.getElementById('battle-pick-guide');
       const startBtn = document.getElementById('btn-battle-start');
-      if (battleP1 && battleP2) {
+      if (battleSelectedDans.length === 0) {
+        guide.textContent = 'もんだいの 段を 1つ以上 えらんでね！';
+        startBtn.classList.add('hidden');
+      } else if (battleP1 && battleP2) {
         guide.textContent = 'じゅんび OK！ バトルを はじめよう！';
         startBtn.classList.remove('hidden');
       } else if (battlePickTurn === 1) {
@@ -1312,7 +1371,7 @@
     }
 
     function startBattle() {
-      if (!battleP1 || !battleP2) return;
+      if (!battleP1 || !battleP2 || battleSelectedDans.length === 0) return;
       document.body.classList.add('battle-active');
       document.getElementById('main-container').classList.add('hidden');
       document.getElementById('sound-controls').classList.add('hidden');
@@ -1327,9 +1386,12 @@
       document.getElementById('battle-name-2').textContent = `2P: ${m2.name}`;
 
       battleHP = { 1: 100, 2: 100 };
-      battleLastKey = '';
+      battleFinished = false;
+      battlePlayerLocked = { 1: false, 2: false };
+      battleLastKey = { 1: '', 2: '' };
       updateBattleHPUI();
-      nextBattleQuestion();
+      nextBattleQuestionFor(1);
+      nextBattleQuestionFor(2);
     }
 
     function rematchBattle() {
@@ -1337,6 +1399,7 @@
     }
 
     function exitBattle() {
+      battleFinished = true;
       showHomeScreen();
     }
 
@@ -1352,29 +1415,27 @@
       });
     }
 
-    function nextBattleQuestion() {
-      battleRoundLocked = false;
-      battlePlayerLocked = { 1: false, 2: false };
+    function nextBattleQuestionFor(player) {
+      if (battleFinished) return;
+      battlePlayerLocked[player] = false;
 
-      const q = createRandomQuestionNoRepeat(battleLastKey);
-      battleLastKey = q.key;
+      const q = createRandomQuestionNoRepeat(battleLastKey[player], battleSelectedDans);
+      battleLastKey[player] = q.key;
       const ans = q.n1 * q.n2;
       const options = buildOptions(q.n1, q.n2);
 
-      [1, 2].forEach(p => {
-        document.getElementById(`battle-q-${p}`).textContent = `${q.n1} × ${q.n2} = ?`;
-        const container = document.getElementById(`battle-opts-${p}`);
-        container.innerHTML = '';
-        options.forEach(opt => {
-          const btn = document.createElement('button');
-          btn.className = 'battle-opt-btn';
-          btn.textContent = opt;
-          btn.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            handleBattleAnswer(p, opt, ans);
-          });
-          container.appendChild(btn);
+      document.getElementById(`battle-q-${player}`).textContent = `${q.n1} × ${q.n2} = ?`;
+      const container = document.getElementById(`battle-opts-${player}`);
+      container.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'battle-opt-btn';
+        btn.textContent = opt;
+        btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          handleBattleAnswer(player, opt, ans);
         });
+        container.appendChild(btn);
       });
     }
 
@@ -1395,21 +1456,23 @@
     }
 
     function handleBattleAnswer(player, selected, correct) {
-      if (battleRoundLocked || battlePlayerLocked[player]) return;
+      if (battleFinished || battlePlayerLocked[player]) return;
       const opponent = player === 1 ? 2 : 1;
 
       if (selected === correct) {
-        battleRoundLocked = true;
+        battlePlayerLocked[player] = true;
         playSound('correct');
-        battleHP[opponent] = Math.max(0, battleHP[opponent] - 10);
+        battleHP[opponent] = Math.max(0, battleHP[opponent] - 5);
         updateBattleHPUI();
         showBattleAnim(player, 'attack', null);
-        showBattleAnim(opponent, 'damage', '-10');
+        showBattleAnim(opponent, 'damage', '-5');
 
         if (battleHP[opponent] <= 0) {
-          setTimeout(() => finishBattle(player), 600);
+          battleFinished = true;
+          setTimeout(() => finishBattle(player), 500);
         } else {
-          setTimeout(nextBattleQuestion, 600);
+          // 自分の問題だけを更新する
+          setTimeout(() => nextBattleQuestionFor(player), 300);
         }
       } else {
         // お手つき：自分に5ダメージ（誤タップ連打防止で0.4秒だけロック）
@@ -1420,8 +1483,8 @@
         showBattleAnim(player, 'damage', '-5');
 
         if (battleHP[player] <= 0) {
-          battleRoundLocked = true;
-          setTimeout(() => finishBattle(opponent), 600);
+          battleFinished = true;
+          setTimeout(() => finishBattle(opponent), 500);
         } else {
           setTimeout(() => { battlePlayerLocked[player] = false; }, 400);
         }
