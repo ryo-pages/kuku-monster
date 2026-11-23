@@ -10,7 +10,10 @@
       font-family: 'Hiragino Maru Gothic ProN', 'Rounded M+ 1c', 'メイリオ', sans-serif;
       margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center;
       min-height: 100vh; color: #333; transition: background 1s ease; position: relative;
+      box-sizing: border-box;
     }
+    body.battle-active { padding: 0; overflow: hidden; height: 100dvh; min-height: 100dvh; }
+
     .bg-theme-0 { background: linear-gradient(to bottom, #ffecd2, #fcb69f); }
     .bg-theme-1 { background: linear-gradient(to bottom, #d4fc79, #96e6a1); }
     .bg-theme-2 { background: linear-gradient(to bottom, #e0c3fc, #8ec5fc); }
@@ -55,13 +58,15 @@
     .btn {
       color: #222; border: none; border-radius: 12px; padding: 15px 5px;
       font-size: 1.2em; font-weight: bold; cursor: pointer; transition: all 0.1s;
+      touch-action: manipulation;
     }
     .btn:active { transform: translateY(4px); box-shadow: none !important; }
     .btn-dan { background-color: #ffeaa7; box-shadow: 0 4px 0 #fdcb6e; }
     .btn-mode { background-color: #74b9ff; box-shadow: 0 4px 0 #0984e3; color: white; }
     .btn-random { background-color: #a29bfe; box-shadow: 0 4px 0 #6c5ce7; color: white; }
     .btn-time60 { background-color: #ff7675; box-shadow: 0 4px 0 #d63031; color: white; width: 100%; margin-top: 10px; }
-    .btn-zukan { background-color: #ff9ff3; box-shadow: 0 4px 0 #f368e0; color: white; margin-bottom: 15px; width: 100%; }
+    .btn-battle { background-color: #00b894; box-shadow: 0 4px 0 #00896b; color: white; width: 100%; margin-bottom: 15px; }
+    .btn-zukan { background-color: #ff9ff3; box-shadow: 0 4px 0 #f368e0; color: white; margin-bottom: 10px; width: 100%; }
     .btn-partner { background-color: #f368e0; box-shadow: 0 4px 0 #d94dbf; color: white; margin-bottom: 10px; width: 100%; }
 
     .btn-relative { position: relative; }
@@ -121,13 +126,82 @@
     .option-btn { background-color: #fff; border: 3px solid #74b9ff; border-radius: 15px; padding: 20px 10px; font-size: 2.2em; font-weight: bold; color: #0984e3; cursor: pointer; box-shadow: 0 5px 0 #74b9ff; touch-action: manipulation; }
     .option-btn:active { transform: translateY(5px); box-shadow: none; }
 
-    /* 図鑑画面 */
-    .zukan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; max-height: 50vh; overflow-y: auto; padding-right: 5px;}
-    .zukan-item { background: rgba(255,255,255,0.8); border-radius: 12px; padding: 10px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1; cursor: pointer; transition: transform 0.1s; }
+    /* 図鑑・対戦選択グリッド */
+    .zukan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; max-height: 45vh; overflow-y: auto; padding-right: 5px;}
+    .zukan-item { background: rgba(255,255,255,0.85); border-radius: 12px; padding: 8px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1; cursor: pointer; transition: transform 0.1s; border: 3px solid transparent; }
     .zukan-item:active { transform: scale(0.95); box-shadow: none; }
-    .zukan-img { width: 100%; height: 70px; object-fit: contain; margin-bottom: 5px; pointer-events: none; }
+    .zukan-img { width: 100%; height: 65px; object-fit: contain; margin-bottom: 4px; pointer-events: none; }
     .zukan-unknown { filter: brightness(0) opacity(0.2); }
     .zukan-name { font-size: 0.65em; font-weight: bold; color: #555; line-height: 1.2; word-break: keep-all; pointer-events: none;}
+
+    /* 対戦選択ステータス */
+    .battle-pick-preview { display: flex; justify-content: space-around; align-items: center; background: #f1f2f6; border-radius: 15px; padding: 10px; margin-bottom: 10px; }
+    .pick-slot { width: 42%; background: #fff; border-radius: 12px; padding: 8px; border: 3px solid #ddd; }
+    .pick-slot.active-p1 { border-color: #0984e3; background: #e8f4fd; }
+    .pick-slot.active-p2 { border-color: #e17055; background: #fdece8; }
+    .pick-slot img { width: 60px; height: 60px; object-fit: contain; }
+    .pick-label { font-size: 0.85em; font-weight: bold; margin-bottom: 4px; }
+
+    /* === 1台2人対戦（HPバトル）全画面UI === */
+    #battle-screen {
+      position: fixed; inset: 0; width: 100vw; height: 100dvh;
+      display: flex; flex-direction: column; background: #2d3436; z-index: 500;
+      user-select: none; -webkit-user-select: none; touch-action: manipulation;
+    }
+    .battle-half {
+      flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+      padding: 10px 14px; box-sizing: border-box; position: relative; overflow: hidden;
+    }
+    .battle-p2 {
+      transform: rotate(180deg);
+      background: linear-gradient(to bottom, #ffeaa7, #fab1a0);
+      border-bottom: 3px solid #2d3436;
+    }
+    .battle-p1 {
+      background: linear-gradient(to bottom, #dff9fb, #74b9ff);
+      border-top: 3px solid #2d3436;
+    }
+    .battle-header { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.85); border-radius: 12px; padding: 6px 10px; }
+    .battle-mon-img { width: 58px; height: 58px; object-fit: contain; transition: transform 0.15s; }
+    .battle-hp-wrap { flex: 1; text-align: left; }
+    .battle-mon-name { font-size: 0.95em; font-weight: bold; color: #2d3436; display: flex; justify-content: space-between; }
+    .hp-bar-bg { width: 100%; height: 14px; background: #dfe6e9; border-radius: 8px; overflow: hidden; margin-top: 4px; border: 1px solid #b2bec3; }
+    .hp-bar-fill { height: 100%; width: 100%; background: #00b894; transition: width 0.25s ease, background-color 0.25s ease; }
+    .hp-low { background: #ff7675 !important; }
+    .hp-mid { background: #fdcb6e !important; }
+
+    .battle-q { font-size: 2.3em; font-weight: bold; color: #2d3436; text-align: center; margin: 4px 0; letter-spacing: 3px; background: rgba(255,255,255,0.75); border-radius: 12px; padding: 4px 0; }
+    .battle-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .battle-opt-btn {
+      background: #fff; border: 3px solid #2d3436; border-radius: 12px;
+      padding: 12px 5px; font-size: 1.7em; font-weight: bold; color: #2d3436;
+      cursor: pointer; box-shadow: 0 4px 0 #636e72; touch-action: manipulation;
+    }
+    .battle-opt-btn:active { transform: translateY(3px); box-shadow: none; }
+    .battle-opt-btn:disabled { opacity: 0.5; }
+
+    .battle-exit-btn {
+      position: fixed; top: 50%; left: 10px; transform: translateY(-50%);
+      z-index: 600; background: rgba(45, 52, 54, 0.85); color: #fff;
+      border: 2px solid #fff; border-radius: 20px; padding: 6px 12px;
+      font-size: 0.8em; font-weight: bold; cursor: pointer;
+    }
+
+    /* 攻撃・被弾アニメーション */
+    .anim-attack { animation: lunge 0.35s ease; }
+    @keyframes lunge { 0% { transform: scale(1); } 40% { transform: scale(1.25) translateY(-10px); } 100% { transform: scale(1); } }
+    .anim-damage { animation: shake-hit 0.35s ease; }
+    @keyframes shake-hit {
+      0%, 100% { transform: translateX(0); filter: none; }
+      25% { transform: translateX(-10px); filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5); }
+      75% { transform: translateX(10px); filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5); }
+    }
+    .dmg-popup {
+      position: absolute; top: 18px; right: 18px; font-size: 1.8em; font-weight: bold;
+      color: #d63031; text-shadow: 2px 2px 0 #fff; pointer-events: none;
+      animation: dmgFloat 0.6s ease-out forwards; z-index: 20;
+    }
+    @keyframes dmgFloat { 0% { opacity: 1; transform: translateY(0) scale(0.8); } 100% { opacity: 0; transform: translateY(-25px) scale(1.2); } }
 
     /* アニメーション */
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -135,15 +209,15 @@
     @keyframes pop-in-spin { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
     @keyframes pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
 
-    .confetti { position: absolute; width: 10px; height: 10px; background-color: #f1c40f; animation: fall 3s infinite linear; z-index: 50; }
+    .confetti { position: absolute; width: 10px; height: 10px; background-color: #f1c40f; animation: fall 3s infinite linear; z-index: 700; }
     @keyframes fall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(500px) rotate(720deg); opacity: 0; } }
 
     #feedback { position: absolute; font-size: 8em; font-weight: bold; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; z-index: 100; }
     .correct-anim { color: #ff4757; animation: pop 0.5s ease-out forwards; }
     .wrong-anim { color: #2f3542; animation: pop 0.5s ease-out forwards; }
     
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: flex; justify-content: center; align-items: center; }
-    .modal-box { background: #fff; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; color: #333; position: relative; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 650; display: flex; justify-content: center; align-items: center; }
+    .modal-box { background: #fff; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; color: #333; position: relative; }
     
     /* 図鑑詳細用スタイル */
     .detail-img { width: 180px; height: 180px; object-fit: contain; margin: 10px 0; animation: float 2s infinite ease-in-out; }
@@ -158,7 +232,7 @@
   </div>
   <audio id="bgm" src="bgm.mp3" loop></audio>
 
-  <div class="container">
+  <div class="container" id="main-container">
     
     <!-- 0. スタート画面 -->
     <div id="start-screen" class="hidden" style="padding: 40px 20px;">
@@ -195,6 +269,7 @@
       </div>
 
       <button class="btn btn-zukan" onclick="playSound('click'); openZukan()">📖 モンスターずかん をみる</button>
+      <button class="btn btn-battle" onclick="playSound('click'); openBattleSelect()">⚔️ 2人たいせん（HPバトル）</button>
 
       <div class="menu-section">
         <div class="grid-3" id="dan-buttons"></div>
@@ -242,6 +317,31 @@
           <button class="btn" style="background: #ccc; margin-top: 20px; width: 100%;" onclick="playSound('cancel'); document.getElementById('mode-modal').classList.add('hidden')">もどる</button>
         </div>
       </div>
+    </div>
+
+    <!-- 2.5 対戦モンスター選択画面 -->
+    <div id="battle-select-screen" class="hidden">
+      <h1 style="color: #00b894; margin-bottom: 5px;">⚔️ 2人たいせん</h1>
+      <h2 id="battle-pick-guide" style="margin-bottom: 12px; font-size: 1.1em;">1P（した）の モンスターを えらんでね！</h2>
+
+      <div class="battle-pick-preview">
+        <div id="pick-slot-1" class="pick-slot active-p1" onclick="setPickingTurn(1)">
+          <div class="pick-label" style="color: #0984e3;">1P（した）</div>
+          <img id="pick-img-1" src="" class="hidden">
+          <div id="pick-name-1" style="font-size: 0.85em; font-weight: bold; color: #888;">えらんでね</div>
+        </div>
+        <div style="font-size: 1.5em; font-weight: bold; color: #ff7675;">VS</div>
+        <div id="pick-slot-2" class="pick-slot" onclick="setPickingTurn(2)">
+          <div class="pick-label" style="color: #e17055;">2P（うえ）</div>
+          <img id="pick-img-2" src="" class="hidden">
+          <div id="pick-name-2" style="font-size: 0.85em; font-weight: bold; color: #888;">えらんでね</div>
+        </div>
+      </div>
+
+      <div class="zukan-grid" id="battle-monster-grid"></div>
+
+      <button id="btn-battle-start" class="btn btn-battle hidden" style="margin-bottom: 10px;" onclick="playSound('click'); startBattle()">🔥 バトル スタート！ 🔥</button>
+      <button class="btn" style="background: #ccc; width: 100%;" onclick="playSound('cancel'); showHomeScreen()">もどる</button>
     </div>
 
     <!-- 3. ゲーム画面 -->
@@ -328,6 +428,55 @@
 
   </div>
 
+  <!-- 8. 1台2人対戦（HPバトル）全画面 -->
+  <div id="battle-screen" class="hidden">
+    <!-- 上側：2P（180度反転） -->
+    <div class="battle-half battle-p2" id="battle-area-2">
+      <div class="battle-header">
+        <img id="battle-img-2" class="battle-mon-img" src="">
+        <div class="battle-hp-wrap">
+          <div class="battle-mon-name">
+            <span id="battle-name-2">2P</span>
+            <span id="battle-hp-text-2">HP 100 / 100</span>
+          </div>
+          <div class="hp-bar-bg"><div id="battle-hp-bar-2" class="hp-bar-fill"></div></div>
+        </div>
+      </div>
+      <div class="battle-q" id="battle-q-2">? × ? = ?</div>
+      <div class="battle-opts" id="battle-opts-2"></div>
+    </div>
+
+    <button class="battle-exit-btn" onclick="playSound('cancel'); exitBattle()">やめる</button>
+
+    <!-- 下側：1P -->
+    <div class="battle-half battle-p1" id="battle-area-1">
+      <div class="battle-header">
+        <img id="battle-img-1" class="battle-mon-img" src="">
+        <div class="battle-hp-wrap">
+          <div class="battle-mon-name">
+            <span id="battle-name-1">1P</span>
+            <span id="battle-hp-text-1">HP 100 / 100</span>
+          </div>
+          <div class="hp-bar-bg"><div id="battle-hp-bar-1" class="hp-bar-fill"></div></div>
+        </div>
+      </div>
+      <div class="battle-q" id="battle-q-1">? × ? = ?</div>
+      <div class="battle-opts" id="battle-opts-1"></div>
+    </div>
+  </div>
+
+  <!-- 対戦結果モーダル -->
+  <div id="battle-result-modal" class="hidden modal-overlay">
+    <div class="modal-box">
+      <h1 id="battle-winner-title" style="color: #ff9f43; font-size: 2.2em; margin: 0 0 10px;">🏆 1P の かち！</h1>
+      <img id="battle-winner-img" class="detail-img" src="" style="width: 140px; height: 140px;">
+      <div id="battle-winner-name" class="monster-name" style="margin-bottom: 20px;"></div>
+      <button class="btn btn-battle" onclick="playSound('click'); rematchBattle()">もういちど たたかう</button>
+      <button class="btn btn-mode" style="width: 100%; margin-bottom: 10px;" onclick="playSound('click'); openBattleSelect()">モンスターを かえる</button>
+      <button class="btn" style="background: #ccc; width: 100%;" onclick="playSound('cancel'); exitBattle()">タイトルへもどる</button>
+    </div>
+  </div>
+
   <div id="feedback"></div>
 
   <script>
@@ -341,7 +490,6 @@
       isBGMOn = !isBGMOn;
       const btn = document.getElementById('bgm-toggle');
       const bgm = document.getElementById('bgm');
-      
       if (isBGMOn) {
         btn.textContent = '🎵 BGM: オン';
         if(bgm && bgm.paused) { bgm.play().catch(e => console.log("BGMブロック")); }
@@ -354,17 +502,12 @@
     function toggleSE() {
       isSEOn = !isSEOn;
       const btn = document.getElementById('se-toggle');
-      if (isSEOn) {
-        btn.textContent = '🔊 SE: オン';
-      } else {
-        btn.textContent = '🔇 SE: オフ';
-      }
+      btn.textContent = isSEOn ? '🔊 SE: オン' : '🔇 SE: オフ';
     }
 
     function initAudio() {
       if (!actx) actx = new AudioContext();
       if (actx.state === 'suspended') actx.resume();
-      
       const bgm = document.getElementById('bgm');
       if(bgm && isBGMOn) {
         bgm.volume = 0.2; 
@@ -448,7 +591,6 @@
       ["ぜんまいで うごく、ポンコツだけど にくめない ロボット。","おおきな デンチを せおって、いちにちじゅう はしりまわる。","そらを とべる ようになった、きんみらいの きどうへいき。","ぜんうちゅうの ぎじゅつを あつめて つくられた さいきょうの メカ。"]
     ];
 
-    // 進化の条件（第4形態は40問に設定）
     const THRESHOLDS = [0, 20, 50, 90];
 
     // === 状態管理 ===
@@ -456,15 +598,15 @@
       totalScore: 0, eggScore: 0, currentLine: 0, clearedDan: {}, unlockedMonsters: [],
       hasSeenDanEnding: false, hasSeenZukanEnding: false,
       partner: null,
-      bestTimes: {}, // 各段タイムアタックの自己ベスト（秒）
-      best60s: 0     // 60秒チャレンジの自己ベスト（問数）
+      bestTimes: {},
+      best60s: 0
     };
     let questionQueue = [];
     let currentQuestion = null;
     let lastQuestionKey = '';
     let isAnswering = false;
     let eggSelected = false;
-    let gameType = ''; // 'dan', 'challenge', 'time60'
+    let gameType = '';
     let selectedDan = null;
     let currentMode = '';
     let currentStage = 0;
@@ -473,10 +615,20 @@
 
     // タイマー管理用
     let timerInterval = null;
+    let nextQuestionTimer = null;
     let timerStartTime = 0;
     let timerElapsedMs = 0;
     let time60CorrectCount = 0;
     let pendingEvoAfterClear = false;
+
+    // 対戦モード管理用
+    let battlePickTurn = 1;
+    let battleP1 = null; // { line, stage }
+    let battleP2 = null; // { line, stage }
+    let battleHP = { 1: 100, 2: 100 };
+    let battleRoundLocked = false;
+    let battlePlayerLocked = { 1: false, 2: false };
+    let battleLastKey = '';
 
     // === 初期化とデータ保存 ===
     window.onload = () => {
@@ -488,7 +640,6 @@
     function startGameFromTitle() {
       initAudio();
       playSound('click');
-      
       setTimeout(() => {
         if (userData.unlockedMonsters.length === 0) {
           resetEggUI();
@@ -539,7 +690,13 @@
 
     // === UI制御 ===
     function showScreen(screenId) {
-      ['start-screen', 'egg-screen', 'home-screen', 'game-screen', 'clear-screen', 'evo-screen', 'dan-ending-screen', 'zukan-ending-screen', 'zukan-screen'].forEach(id => {
+      document.body.classList.remove('battle-active');
+      document.getElementById('main-container').classList.remove('hidden');
+      document.getElementById('sound-controls').classList.remove('hidden');
+      document.getElementById('battle-screen').classList.add('hidden');
+      document.getElementById('battle-result-modal').classList.add('hidden');
+
+      ['start-screen', 'egg-screen', 'home-screen', 'battle-select-screen', 'game-screen', 'clear-screen', 'evo-screen', 'dan-ending-screen', 'zukan-ending-screen', 'zukan-screen'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
       });
       document.getElementById(screenId).classList.remove('hidden');
@@ -566,24 +723,18 @@
     function selectEgg(element) {
       if (eggSelected) return;
       eggSelected = true;
-      
       document.querySelectorAll('.egg-item').forEach(egg => {
         if (egg !== element) egg.style.opacity = 0;
       });
-      
       element.classList.add('egg-floating-glow');
 
       let availableLines = [];
       for (let i = 0; i < monsterLines.length; i++) {
-        if (!userData.unlockedMonsters.includes(`${i}-0`)) {
-          availableLines.push(i);
-        }
+        if (!userData.unlockedMonsters.includes(`${i}-0`)) availableLines.push(i);
       }
-      if (availableLines.length === 0) {
-        userData.currentLine = Math.floor(Math.random() * monsterLines.length);
-      } else {
-        userData.currentLine = availableLines[Math.floor(Math.random() * availableLines.length)];
-      }
+      userData.currentLine = availableLines.length === 0
+        ? Math.floor(Math.random() * monsterLines.length)
+        : availableLines[Math.floor(Math.random() * availableLines.length)];
 
       setTimeout(() => {
         playSound('hatch');
@@ -612,11 +763,8 @@
       showScreen('home-screen');
 
       const isComp = (userData.unlockedMonsters.length === 40);
-
       if (isComp) {
-        if (!userData.partner) {
-          userData.partner = { line: userData.currentLine, stage: currentStage };
-        }
+        if (!userData.partner) userData.partner = { line: userData.currentLine, stage: currentStage };
         document.getElementById('body-bg').className = `bg-theme-${userData.partner.line}`;
         const p = monsterLines[userData.partner.line][userData.partner.stage];
         document.getElementById('home-image').src = p.image;
@@ -651,7 +799,6 @@
         const btn = document.createElement('button');
         btn.className = 'btn btn-dan btn-relative';
         btn.innerHTML = `${i}の<ruby>段<rt>だん</rt></ruby>`;
-
         const d = userData.clearedDan[i];
         if (d && d.up && d.down && d.random) {
           const medal = document.createElement('div');
@@ -703,11 +850,9 @@
 
           const item = document.createElement('div');
           item.className = 'zukan-item';
-
           const img = document.createElement('img');
           img.className = `zukan-img ${isUnlocked ? '' : 'zukan-unknown'}`;
           img.src = monster.image;
-          
           const name = document.createElement('div');
           name.className = 'zukan-name';
           name.innerHTML = isUnlocked ? monster.name : '？？？';
@@ -716,21 +861,16 @@
           item.appendChild(name);
 
           if (isUnlocked) {
-            item.onclick = () => { 
-              playSound('click'); 
-              showZukanDetail(lIndex, sIndex); 
-            };
+            item.onclick = () => { playSound('click'); showZukanDetail(lIndex, sIndex); };
           }
           grid.appendChild(item);
         });
       });
 
       const status = document.getElementById('zukan-status');
-      if (unlockedCount === totalMonsters) {
-        status.innerHTML = '🏅 <span style="color:#ff4757;">ずかん コンプリート！</span> 🏅';
-      } else {
-        status.innerHTML = `あつめたかず： ${unlockedCount} / ${totalMonsters}`;
-      }
+      status.innerHTML = unlockedCount === totalMonsters
+        ? '🏅 <span style="color:#ff4757;">ずかん コンプリート！</span> 🏅'
+        : `あつめたかず： ${unlockedCount} / ${totalMonsters}`;
     }
 
     function showZukanDetail(lIndex, sIndex) {
@@ -747,7 +887,6 @@
       } else {
         partnerBtn.classList.add('hidden');
       }
-
       document.getElementById('zukan-detail-modal').classList.remove('hidden');
     }
 
@@ -785,9 +924,7 @@
           const remain = Math.max(0, 60 - elapsed);
           el.textContent = `⏱ のこり ${remain.toFixed(1)}びょう`;
           if (remain <= 10) el.classList.add('timer-danger');
-          if (remain <= 0) {
-            finishTime60Game();
-          }
+          if (remain <= 0) finishTime60Game();
         }, 100);
       }
     }
@@ -810,10 +947,8 @@
     }
 
     function stopTimer() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      if (nextQuestionTimer) { clearTimeout(nextQuestionTimer); nextQuestionTimer = null; }
       document.getElementById('timer-display').classList.add('hidden');
       document.getElementById('timer-display').classList.remove('timer-danger');
     }
@@ -824,7 +959,7 @@
       return Math.round((totalMs / 1000) * 10) / 10;
     }
 
-    // === ゲームロジック ===
+    // === 通常・タイマーゲームロジック ===
     function startDanGame(mode) {
       document.getElementById('mode-modal').classList.add('hidden');
       gameType = 'dan';
@@ -836,7 +971,6 @@
           isAllDanCleared = false; break;
         }
       }
-
       let isCurrentModeCleared = userData.clearedDan[selectedDan][mode] === true;
       canEarnPoint = isAllDanCleared || !isCurrentModeCleared;
 
@@ -877,13 +1011,8 @@
 
     function startGame() {
       showScreen('game-screen');
-      
       const warningText = document.getElementById('grind-warning');
-      if (!canEarnPoint) {
-        warningText.classList.remove('hidden');
-      } else {
-        warningText.classList.add('hidden');
-      }
+      warningText.classList.toggle('hidden', canEarnPoint);
 
       document.getElementById('question-counter').dataset.total = questionQueue.length;
       document.getElementById('question-counter').dataset.current = 1;
@@ -903,21 +1032,31 @@
       document.getElementById('question-counter').textContent = `問題: ${current}/${total}`;
     }
 
-    function createRandomQuestionNoRepeat() {
+    function createRandomQuestionNoRepeat(prevKey) {
       let n1, n2, key;
       do {
         n1 = Math.floor(Math.random() * 9) + 1;
         n2 = Math.floor(Math.random() * 9) + 1;
         key = `${n1}-${n2}`;
-      } while (key === lastQuestionKey);
-      lastQuestionKey = key;
-      return { n1, n2 };
+      } while (key === prevKey);
+      return { n1, n2, key };
+    }
+
+    function buildOptions(n1, n2) {
+      const ans = n1 * n2;
+      const optionsSet = new Set([ans]);
+      const dummies = [n1 * (n2 + 1), (n1 + 1) * n2, n1 * Math.max(1, n2 - 1)];
+      dummies.forEach(d => { if(d > 0 && d !== ans) optionsSet.add(d); });
+      while(optionsSet.size < 4) optionsSet.add(Math.floor(Math.random()*81)+1);
+      return Array.from(optionsSet).sort(() => Math.random() - 0.5);
     }
 
     function askNext() {
       if (gameType === 'time60') {
         isAnswering = false;
-        currentQuestion = createRandomQuestionNoRepeat();
+        const q = createRandomQuestionNoRepeat(lastQuestionKey);
+        lastQuestionKey = q.key;
+        currentQuestion = { n1: q.n1, n2: q.n2 };
       } else {
         if (questionQueue.length === 0) {
           finishNormalGame();
@@ -930,16 +1069,7 @@
       const ans = currentQuestion.n1 * currentQuestion.n2;
       document.getElementById('question-text').textContent = `${currentQuestion.n1} × ${currentQuestion.n2} = ?`;
 
-      const optionsSet = new Set([ans]);
-      const dummies = [
-        currentQuestion.n1 * currentQuestion.n2,
-        currentQuestion.n1 * (currentQuestion.n2 + 1),
-        (currentQuestion.n1 + 1) * currentQuestion.n2
-      ];
-      dummies.forEach(d => { if(d > 0 && d !== ans) optionsSet.add(d); });
-      while(optionsSet.size < 4) optionsSet.add(Math.floor(Math.random()*81)+1);
-
-      const optionsArray = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+      const optionsArray = buildOptions(currentQuestion.n1, currentQuestion.n2);
       const container = document.getElementById('options-container');
       container.innerHTML = '';
       optionsArray.forEach(opt => {
@@ -1003,12 +1133,9 @@
         isNewRecord = true;
       }
 
-      // 60秒チャレンジ中に進化条件を満たしていたかチェック
       if (userData.unlockedMonsters.length < 40) {
         let newStage = getStage(userData.eggScore);
-        if (newStage > currentStage) {
-          pendingEvoAfterClear = true;
-        }
+        if (newStage > currentStage) pendingEvoAfterClear = true;
       }
       saveData();
 
@@ -1040,16 +1167,14 @@
         
         if (canEarnPoint) {
           userData.totalScore++;
-          if (userData.unlockedMonsters.length < 40) {
-            userData.eggScore++;
-          }
+          if (userData.unlockedMonsters.length < 40) userData.eggScore++;
         }
 
         if (gameType === 'time60') {
           time60CorrectCount++;
           updateScoreUI();
           saveData();
-          setTimeout(askNext, 250); // 60秒チャレンジはテンポ重視で少し速く次へ
+          nextQuestionTimer = setTimeout(askNext, 250);
           return;
         }
         
@@ -1060,7 +1185,7 @@
         if (userData.unlockedMonsters.length < 40) {
           let newStage = getStage(userData.eggScore);
           if (newStage > currentStage) {
-            pauseTimer(); // 進化演出中はタイマーを一時停止
+            pauseTimer();
             currentStage = newStage;
             unlockMonster(userData.currentLine, currentStage);
             saveData();
@@ -1070,7 +1195,7 @@
         }
 
         saveData();
-        setTimeout(askNext, 500);
+        nextQuestionTimer = setTimeout(askNext, 500);
       } else {
         playSound('wrong');
         showFeedback('✕', 'wrong-anim');
@@ -1083,7 +1208,6 @@
         pendingEvoAfterClear = false;
         let newStage = getStage(userData.eggScore);
         if (newStage > currentStage) {
-          // 複数段階一気に上がった場合もすべて図鑑登録
           for (let s = currentStage + 1; s <= newStage; s++) {
             unlockMonster(userData.currentLine, s);
           }
@@ -1099,6 +1223,220 @@
     function returnToHome() {
       stopTimer();
       showHomeScreen();
+    }
+
+    // === 1台2人対戦（HPバトル）ロジック ===
+    function openBattleSelect() {
+      showScreen('battle-select-screen');
+      battleP1 = null;
+      battleP2 = null;
+      battlePickTurn = 1;
+      updateBattlePickUI();
+
+      const grid = document.getElementById('battle-monster-grid');
+      grid.innerHTML = '';
+
+      monsterLines.forEach((line, lIndex) => {
+        line.forEach((monster, sIndex) => {
+          if (!userData.unlockedMonsters.includes(`${lIndex}-${sIndex}`)) return;
+          const item = document.createElement('div');
+          item.className = 'zukan-item';
+          item.innerHTML = `<img class="zukan-img" src="${monster.image}"><div class="zukan-name">${monster.name}</div>`;
+          item.onclick = () => {
+            playSound('click');
+            pickBattleMonster(lIndex, sIndex);
+          };
+          grid.appendChild(item);
+        });
+      });
+    }
+
+    function setPickingTurn(player) {
+      battlePickTurn = player;
+      updateBattlePickUI();
+    }
+
+    function pickBattleMonster(line, stage) {
+      if (battlePickTurn === 1) {
+        battleP1 = { line, stage };
+        if (!battleP2) battlePickTurn = 2;
+      } else {
+        battleP2 = { line, stage };
+        if (!battleP1) battlePickTurn = 1;
+      }
+      updateBattlePickUI();
+    }
+
+    function updateBattlePickUI() {
+      const slot1 = document.getElementById('pick-slot-1');
+      const slot2 = document.getElementById('pick-slot-2');
+      slot1.classList.toggle('active-p1', battlePickTurn === 1);
+      slot2.classList.toggle('active-p2', battlePickTurn === 2);
+
+      if (battleP1) {
+        const m1 = monsterLines[battleP1.line][battleP1.stage];
+        document.getElementById('pick-img-1').src = m1.image;
+        document.getElementById('pick-img-1').classList.remove('hidden');
+        document.getElementById('pick-name-1').textContent = m1.name;
+        document.getElementById('pick-name-1').style.color = '#2d3436';
+      } else {
+        document.getElementById('pick-img-1').classList.add('hidden');
+        document.getElementById('pick-name-1').textContent = 'えらんでね';
+        document.getElementById('pick-name-1').style.color = '#888';
+      }
+
+      if (battleP2) {
+        const m2 = monsterLines[battleP2.line][battleP2.stage];
+        document.getElementById('pick-img-2').src = m2.image;
+        document.getElementById('pick-img-2').classList.remove('hidden');
+        document.getElementById('pick-name-2').textContent = m2.name;
+        document.getElementById('pick-name-2').style.color = '#2d3436';
+      } else {
+        document.getElementById('pick-img-2').classList.add('hidden');
+        document.getElementById('pick-name-2').textContent = 'えらんでね';
+        document.getElementById('pick-name-2').style.color = '#888';
+      }
+
+      const guide = document.getElementById('battle-pick-guide');
+      const startBtn = document.getElementById('btn-battle-start');
+      if (battleP1 && battleP2) {
+        guide.textContent = 'じゅんび OK！ バトルを はじめよう！';
+        startBtn.classList.remove('hidden');
+      } else if (battlePickTurn === 1) {
+        guide.textContent = '1P（した）の モンスターを えらんでね！';
+        startBtn.classList.add('hidden');
+      } else {
+        guide.textContent = '2P（うえ）の モンスターを えらんでね！';
+        startBtn.classList.add('hidden');
+      }
+    }
+
+    function startBattle() {
+      if (!battleP1 || !battleP2) return;
+      document.body.classList.add('battle-active');
+      document.getElementById('main-container').classList.add('hidden');
+      document.getElementById('sound-controls').classList.add('hidden');
+      document.getElementById('battle-result-modal').classList.add('hidden');
+      document.getElementById('battle-screen').classList.remove('hidden');
+
+      const m1 = monsterLines[battleP1.line][battleP1.stage];
+      const m2 = monsterLines[battleP2.line][battleP2.stage];
+      document.getElementById('battle-img-1').src = m1.image;
+      document.getElementById('battle-name-1').textContent = `1P: ${m1.name}`;
+      document.getElementById('battle-img-2').src = m2.image;
+      document.getElementById('battle-name-2').textContent = `2P: ${m2.name}`;
+
+      battleHP = { 1: 100, 2: 100 };
+      battleLastKey = '';
+      updateBattleHPUI();
+      nextBattleQuestion();
+    }
+
+    function rematchBattle() {
+      startBattle();
+    }
+
+    function exitBattle() {
+      showHomeScreen();
+    }
+
+    function updateBattleHPUI() {
+      [1, 2].forEach(p => {
+        const hp = Math.max(0, battleHP[p]);
+        document.getElementById(`battle-hp-text-${p}`).textContent = `HP ${hp} / 100`;
+        const bar = document.getElementById(`battle-hp-bar-${p}`);
+        bar.style.width = `${hp}%`;
+        bar.classList.remove('hp-mid', 'hp-low');
+        if (hp <= 25) bar.classList.add('hp-low');
+        else if (hp <= 50) bar.classList.add('hp-mid');
+      });
+    }
+
+    function nextBattleQuestion() {
+      battleRoundLocked = false;
+      battlePlayerLocked = { 1: false, 2: false };
+
+      const q = createRandomQuestionNoRepeat(battleLastKey);
+      battleLastKey = q.key;
+      const ans = q.n1 * q.n2;
+      const options = buildOptions(q.n1, q.n2);
+
+      [1, 2].forEach(p => {
+        document.getElementById(`battle-q-${p}`).textContent = `${q.n1} × ${q.n2} = ?`;
+        const container = document.getElementById(`battle-opts-${p}`);
+        container.innerHTML = '';
+        options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'battle-opt-btn';
+          btn.textContent = opt;
+          btn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            handleBattleAnswer(p, opt, ans);
+          });
+          container.appendChild(btn);
+        });
+      });
+    }
+
+    function showBattleAnim(player, type, dmgText) {
+      const img = document.getElementById(`battle-img-${player}`);
+      img.classList.remove('anim-attack', 'anim-damage');
+      void img.offsetWidth;
+      img.classList.add(type === 'attack' ? 'anim-attack' : 'anim-damage');
+
+      if (dmgText) {
+        const area = document.getElementById(`battle-area-${player}`);
+        const pop = document.createElement('div');
+        pop.className = 'dmg-popup';
+        pop.textContent = dmgText;
+        area.appendChild(pop);
+        setTimeout(() => pop.remove(), 600);
+      }
+    }
+
+    function handleBattleAnswer(player, selected, correct) {
+      if (battleRoundLocked || battlePlayerLocked[player]) return;
+      const opponent = player === 1 ? 2 : 1;
+
+      if (selected === correct) {
+        battleRoundLocked = true;
+        playSound('correct');
+        battleHP[opponent] = Math.max(0, battleHP[opponent] - 10);
+        updateBattleHPUI();
+        showBattleAnim(player, 'attack', null);
+        showBattleAnim(opponent, 'damage', '-10');
+
+        if (battleHP[opponent] <= 0) {
+          setTimeout(() => finishBattle(player), 600);
+        } else {
+          setTimeout(nextBattleQuestion, 600);
+        }
+      } else {
+        // お手つき：自分に5ダメージ（誤タップ連打防止で0.4秒だけロック）
+        battlePlayerLocked[player] = true;
+        playSound('wrong');
+        battleHP[player] = Math.max(0, battleHP[player] - 5);
+        updateBattleHPUI();
+        showBattleAnim(player, 'damage', '-5');
+
+        if (battleHP[player] <= 0) {
+          battleRoundLocked = true;
+          setTimeout(() => finishBattle(opponent), 600);
+        } else {
+          setTimeout(() => { battlePlayerLocked[player] = false; }, 400);
+        }
+      }
+    }
+
+    function finishBattle(winner) {
+      playSound('clear');
+      createConfetti();
+      const winData = winner === 1 ? battleP1 : battleP2;
+      const m = monsterLines[winData.line][winData.stage];
+      document.getElementById('battle-winner-title').textContent = `🏆 ${winner}P の かち！`;
+      document.getElementById('battle-winner-img').src = m.image;
+      document.getElementById('battle-winner-name').textContent = m.name;
+      document.getElementById('battle-result-modal').classList.remove('hidden');
     }
 
     // === 進化の豪華アニメーション ===
@@ -1120,7 +1458,6 @@
       imgEl.src = monsterLines[userData.currentLine][oldStage].image;
       imgEl.className = 'evo-img';
       void imgEl.offsetWidth; 
-      
       imgEl.classList.add('evo-anim-start');
 
       setTimeout(() => {
@@ -1174,9 +1511,7 @@
       let allDanCleared = true;
       for (let i = 1; i <= 9; i++) {
         const d = userData.clearedDan[i];
-        if (!d || !d.up || !d.down || !d.random) {
-          allDanCleared = false; break;
-        }
+        if (!d || !d.up || !d.down || !d.random) { allDanCleared = false; break; }
       }
       if (allDanCleared && !userData.hasSeenDanEnding) {
         userData.hasSeenDanEnding = true; saveData();
